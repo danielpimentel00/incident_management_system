@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="incident_management_system.API/incident_management_system.API.csproj" />
+  </Folder>
+</Solution>
