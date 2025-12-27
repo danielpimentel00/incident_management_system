@@ -15,6 +15,10 @@ public class UserService : IUserService
 
     public Task<User> CreateUserAsync(User user)
     {
+        user.Id = _userInMemoryDb.Users.Count > 0
+            ? _userInMemoryDb.Users.Max(u => u.Id) + 1
+            : 1;
+
         _userInMemoryDb.Users.Add(user);
         return Task.FromResult(user);
     }
