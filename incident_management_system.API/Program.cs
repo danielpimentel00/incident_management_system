@@ -1,5 +1,6 @@
 using incident_management_system.API.Endpoints;
 using incident_management_system.API.ExceptionHandlers;
+using incident_management_system.API.Health;
 using incident_management_system.API.Infrastructure;
 using incident_management_system.API.Interfaces;
 using incident_management_system.API.Middlewares;
@@ -26,5 +27,6 @@ app.UseExceptionHandler();
 app.UseMiddleware<LoggingMiddleware>();
 
 app.MapIncidentEndpoints();
+app.MapHealthEndpoints();
 
 app.Run();
