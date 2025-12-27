@@ -15,6 +15,11 @@ public class IncidentService : IIncidentService
 
     public Task<Incident> CreateIncidentAsync(Incident incident)
     {
+        incident.Id = _incidentInMemoryDb.Incidents.Count > 0
+            ? _incidentInMemoryDb.Incidents.Max(i => i.Id) + 1
+            : 1;
+        incident.CreatedAt = DateTime.UtcNow;
+
         _incidentInMemoryDb.Incidents.Add(incident);
         return Task.FromResult(incident);
     }
@@ -50,7 +55,13 @@ public class IncidentService : IIncidentService
             return Task.FromResult(false);
         }
 
-        _incidentInMemoryDb.Incidents[index] = updatedIncident;
+        var incident = _incidentInMemoryDb.Incidents[index];
+        incident.Title = updatedIncident.Title;
+        incident.Description = updatedIncident.Description;
+        incident.Status = updatedIncident.Status;
+
+        if (incident.Status == "Resolved") incident.ResolvedAt = DateTime.UtcNow;
+
         return Task.FromResult(true);
     }
 }

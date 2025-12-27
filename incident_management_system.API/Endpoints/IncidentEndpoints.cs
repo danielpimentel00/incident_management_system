@@ -1,4 +1,5 @@
-﻿using incident_management_system.API.Interfaces;
+﻿using incident_management_system.API.DTOs.Incident;
+using incident_management_system.API.Interfaces;
 using incident_management_system.API.Models;
 
 namespace incident_management_system.API.Endpoints;
@@ -12,7 +13,21 @@ public static class IncidentEndpoints
         group.MapGet("/", async (IIncidentService incidentService) =>
         {
             var incidents = await incidentService.GetAllIncidentsAsync();
-            return Results.Ok(incidents);
+            
+            var response = new List<IncidentResponse>();
+            foreach (var incident in incidents)
+            {
+                response.Add(new IncidentResponse
+                {
+                    Id = incident.Id,
+                    Title = incident.Title,
+                    Description = incident.Description,
+                    ResolvedAt = incident.ResolvedAt,
+                    Status = incident.Status
+                });
+            }
+
+            return Results.Ok(response);
         })
         .WithName("GetAllIncidents")
         .WithSummary("Retrieve all incidents")
@@ -21,24 +36,60 @@ public static class IncidentEndpoints
         group.MapGet("/{id:int}", async (int id, IIncidentService incidentService) =>
         {
             var incident = await incidentService.GetIncidentByIdAsync(id);
-            return incident is not null ? Results.Ok(incident) : Results.NotFound();
+
+            if (incident is null) return Results.NotFound();
+
+            var response = new IncidentResponse
+            {
+                Id = incident.Id,
+                Title = incident.Title,
+                Description = incident.Description,
+                ResolvedAt = incident.ResolvedAt,
+                Status = incident.Status
+            };
+
+            return Results.Ok(response);
         })
         .WithName("GetIncidentById")
         .WithSummary("Retrieve an incident by ID")
         .WithDescription("Gets the details of a specific incident by its ID.");
 
-        group.MapPost("/", async (Incident incident, IIncidentService incidentService) =>
+        group.MapPost("/", async (CreateIncidentRequest request, IIncidentService incidentService) =>
         {
-            var createdIncident = await incidentService.CreateIncidentAsync(incident);
-            return Results.Created($"/api/incidents/{createdIncident.Id}", createdIncident);
+            var newIncident = new Incident
+            {
+                Title = request.Title,
+                Description = request.Description
+            };
+
+            var createdIncident = await incidentService.CreateIncidentAsync(newIncident);
+
+            var response = new IncidentResponse
+            {
+                Id = createdIncident.Id,
+                Title = createdIncident.Title,
+                Description = createdIncident.Description,
+                ResolvedAt = createdIncident.ResolvedAt,
+                Status = createdIncident.Status
+            };
+
+            return Results.Created($"/api/incidents/{createdIncident.Id}", response);
         })
         .WithName("CreateIncident")
         .WithSummary("Create a new incident")
         .WithDescription("Creates a new incident in the system.");
 
-        group.MapPut("/{id:int}", async (int id, Incident updatedIncident, IIncidentService incidentService) =>
+        group.MapPut("/{id:int}", async (int id, UpdateIncidentRequest request, IIncidentService incidentService) =>
         {
+            var updatedIncident = new Incident
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Status = request.Status
+            };
+
             var result = await incidentService.UpdateIncidentAsync(id, updatedIncident);
+
             return result ? Results.NoContent() : Results.NotFound();
         })
         .WithName("UpdateIncident")
