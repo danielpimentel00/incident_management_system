@@ -13,8 +13,9 @@ public static class HealthEndpoints
                 timestamp = DateTime.UtcNow,
                 service = "Incident Management API"
             });
-        }).WithName("GetHealthStatus")
-          .WithSummary("Retrieve health status")
-          .WithDescription("Checks the health status of the API.");
+        })
+        .WithName("GetHealthStatus")
+        .WithSummary("Retrieve health status")
+        .WithDescription("Checks the health status of the API.");
     }
 }

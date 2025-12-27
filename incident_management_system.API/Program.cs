@@ -13,7 +13,9 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddScoped<IIncidentService, IncidentService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IncidentInMemoryDb>();
+builder.Services.AddSingleton<UserInMemoryDb>();
 
 var app = builder.Build();
 
@@ -26,7 +28,8 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseMiddleware<LoggingMiddleware>();
 
-app.MapIncidentEndpoints();
 app.MapHealthEndpoints();
+app.MapIncidentEndpoints();
+app.MapUserEndpoints();
 
 app.Run();
