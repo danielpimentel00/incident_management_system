@@ -64,4 +64,18 @@ public class IncidentService : IIncidentService
 
         return Task.FromResult(true);
     }
+
+    public Task<bool> UpdateIncidentStatusAsync(int id, string status)
+    {
+        var incident = _incidentInMemoryDb.Incidents.FirstOrDefault(i => i.Id == id);
+        if (incident is null)
+        {
+            return Task.FromResult(false);
+        }
+
+        incident.Status = status;
+        if (status == "Resolved") incident.ResolvedAt = DateTime.UtcNow;
+
+        return Task.FromResult(true);
+    }
 }

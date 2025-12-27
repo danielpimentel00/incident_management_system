@@ -9,4 +9,5 @@ public interface IIncidentService
     Task<Incident> CreateIncidentAsync(Incident incident);
     Task<bool> UpdateIncidentAsync(int id, Incident updatedIncident);
     Task<bool> DeleteIncidentAsync(int id);
+    Task<bool> UpdateIncidentStatusAsync(int id, string status);
 }

@@ -104,5 +104,14 @@ public static class IncidentEndpoints
         .WithName("DeleteIncident")
         .WithSummary("Delete an incident")
         .WithDescription("Deletes an incident from the system.");
+
+        group.MapPut("/{id:int}/status", async (int id, UpdateIncidentStatusRequest request, IIncidentService incidentService) =>
+        {
+            var result = await incidentService.UpdateIncidentStatusAsync(id, request.Status);
+            return result ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("UpdateIncidentStatus")
+        .WithSummary("Update the status of an existing incident")
+        .WithDescription("Updates the status of an existing incident.");
     }
 }
