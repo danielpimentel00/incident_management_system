@@ -21,7 +21,13 @@ public class IncidentService : IIncidentService
 
     public Task<bool> DeleteIncidentAsync(int id)
     {
-        _incidentInMemoryDb.Incidents.RemoveAll(i => i.Id == id);
+        var incident = _incidentInMemoryDb.Incidents.FirstOrDefault(i => i.Id == id);
+        if (incident is null)
+        {
+            return Task.FromResult(false);
+        }
+
+        _incidentInMemoryDb.Incidents.Remove(incident);
         return Task.FromResult(true);
     }
 
