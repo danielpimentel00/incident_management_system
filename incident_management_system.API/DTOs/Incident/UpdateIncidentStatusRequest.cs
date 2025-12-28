@@ -1,6 +1,8 @@
-﻿namespace incident_management_system.API.DTOs.Incident;
+﻿using incident_management_system.API.Enums;
+
+namespace incident_management_system.API.DTOs.Incident;
 
 public class UpdateIncidentStatusRequest
 {
-    public string Status { get; set; } = string.Empty;
+    public IncidentStatus Status { get; set; } = IncidentStatus.Open;
 }

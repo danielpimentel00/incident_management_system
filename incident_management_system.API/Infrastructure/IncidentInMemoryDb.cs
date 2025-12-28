@@ -1,4 +1,5 @@
-﻿using incident_management_system.API.Models;
+﻿using incident_management_system.API.Enums;
+using incident_management_system.API.Models;
 
 namespace incident_management_system.API.Infrastructure;
 
@@ -12,7 +13,7 @@ public class IncidentInMemoryDb
             Title = "Sample Incident 1",
             Description = "This is a sample incident.",
             CreatedAt = DateTime.UtcNow.AddDays(-2),
-            Status = "Open"
+            Status = IncidentStatus.Open
         },
         new Incident
         {
@@ -21,7 +22,7 @@ public class IncidentInMemoryDb
             Description = "This is another sample incident.",
             CreatedAt = DateTime.UtcNow.AddDays(-1),
             ResolvedAt = DateTime.UtcNow,
-            Status = "Resolved"
+            Status = IncidentStatus.Open
         }
     ];
 }

@@ -1,4 +1,5 @@
-﻿using incident_management_system.API.DTOs.Incident;
+﻿using FluentValidation;
+using incident_management_system.API.DTOs.Incident;
 using incident_management_system.API.Interfaces;
 using incident_management_system.API.Models;
 
@@ -54,8 +55,17 @@ public static class IncidentEndpoints
         .WithSummary("Retrieve an incident by ID")
         .WithDescription("Gets the details of a specific incident by its ID.");
 
-        group.MapPost("/", async (CreateIncidentRequest request, IIncidentService incidentService) =>
+        group.MapPost("/", async (
+            CreateIncidentRequest request, 
+            IIncidentService incidentService,
+            IValidator<CreateIncidentRequest> requestValidator) =>
         {
+            var validationResult = await requestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+
             var newIncident = new Incident
             {
                 Title = request.Title,
@@ -79,8 +89,18 @@ public static class IncidentEndpoints
         .WithSummary("Create a new incident")
         .WithDescription("Creates a new incident in the system.");
 
-        group.MapPut("/{id:int}", async (int id, UpdateIncidentRequest request, IIncidentService incidentService) =>
+        group.MapPut("/{id:int}", async (
+            int id, 
+            UpdateIncidentRequest request, 
+            IIncidentService incidentService,
+            IValidator<UpdateIncidentRequest> requestValidator) =>
         {
+            var validationResult = await requestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+
             var updatedIncident = new Incident
             {
                 Title = request.Title,
@@ -105,8 +125,18 @@ public static class IncidentEndpoints
         .WithSummary("Delete an incident")
         .WithDescription("Deletes an incident from the system.");
 
-        group.MapPut("/{id:int}/status", async (int id, UpdateIncidentStatusRequest request, IIncidentService incidentService) =>
+        group.MapPut("/{id:int}/status", async (
+            int id, 
+            UpdateIncidentStatusRequest request, 
+            IIncidentService incidentService,
+            IValidator<UpdateIncidentStatusRequest> requestValidator) =>
         {
+            var validationResult = await requestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+
             var result = await incidentService.UpdateIncidentStatusAsync(id, request.Status);
             return result ? Results.NoContent() : Results.NotFound();
         })

@@ -1,4 +1,6 @@
-﻿namespace incident_management_system.API.Models;
+﻿using incident_management_system.API.Enums;
+
+namespace incident_management_system.API.Models;
 
 public class Incident
 {
@@ -7,5 +9,5 @@ public class Incident
     public string Description { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime? ResolvedAt { get; set; }
-    public string Status { get; set; } = "Open";
+    public IncidentStatus Status { get; set; } = IncidentStatus.Open;
 }

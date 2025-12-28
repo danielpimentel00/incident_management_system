@@ -1,4 +1,5 @@
-﻿using incident_management_system.API.Infrastructure;
+﻿using incident_management_system.API.Enums;
+using incident_management_system.API.Infrastructure;
 using incident_management_system.API.Interfaces;
 using incident_management_system.API.Models;
 
@@ -60,12 +61,12 @@ public class IncidentService : IIncidentService
         incident.Description = updatedIncident.Description;
         incident.Status = updatedIncident.Status;
 
-        if (incident.Status == "Resolved") incident.ResolvedAt = DateTime.UtcNow;
+        if (incident.Status == IncidentStatus.Resolved) incident.ResolvedAt = DateTime.UtcNow;
 
         return Task.FromResult(true);
     }
 
-    public Task<bool> UpdateIncidentStatusAsync(int id, string status)
+    public Task<bool> UpdateIncidentStatusAsync(int id, IncidentStatus status)
     {
         var incident = _incidentInMemoryDb.Incidents.FirstOrDefault(i => i.Id == id);
         if (incident is null)
@@ -74,7 +75,7 @@ public class IncidentService : IIncidentService
         }
 
         incident.Status = status;
-        if (status == "Resolved") incident.ResolvedAt = DateTime.UtcNow;
+        if (status == IncidentStatus.Resolved) incident.ResolvedAt = DateTime.UtcNow;
 
         return Task.FromResult(true);
     }

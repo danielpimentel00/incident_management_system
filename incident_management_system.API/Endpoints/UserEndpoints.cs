@@ -1,4 +1,5 @@
-﻿using incident_management_system.API.DTOs.User;
+﻿using FluentValidation;
+using incident_management_system.API.DTOs.User;
 using incident_management_system.API.Interfaces;
 using incident_management_system.API.Models;
 
@@ -51,8 +52,17 @@ public static class UserEndpoints
         .WithSummary("Retrieve a user by ID")
         .WithDescription("Gets the details of a specific user by its ID.");
 
-        group.MapPost("/", async (CreateUserRequest request, IUserService userService) =>
+        group.MapPost("/", async (
+            CreateUserRequest request, 
+            IUserService userService,
+            IValidator<CreateUserRequest> requestValidator) =>
         {
+            var validationResult = await requestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+
             var newUser = new User
             {
                 Username = request.Username,
