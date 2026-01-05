@@ -1,0 +1,20 @@
+﻿using incident_management_system.API.Interfaces;
+using MediatR;
+
+namespace incident_management_system.API.Features.Incidents.GetAllIncidents;
+
+public class GetAllIncidentsEndpoint : IEndpoint
+{
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        routes.MapGet("/api/incidents", async (IMediator mediator) =>
+        {
+            var incidents = await mediator.Send(new GetAllIncidentsQuery());
+            return Results.Ok(incidents);
+        })
+        .WithTags("Incident Management")
+        .WithName("GetAllIncidents")
+        .WithSummary("Retrieve all incidents")
+        .WithDescription("Gets a list of all incidents in the system.");
+    }
+}

@@ -1,11 +1,12 @@
+using FluentValidation;
 using incident_management_system.API.Endpoints;
 using incident_management_system.API.ExceptionHandlers;
+using incident_management_system.API.Extensions;
 using incident_management_system.API.Health;
 using incident_management_system.API.Infrastructure;
 using incident_management_system.API.Interfaces;
 using incident_management_system.API.Middlewares;
 using incident_management_system.API.Services;
-using FluentValidation;
 using incident_management_system.API.Validators.Incident;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentRequestValidator>();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
 builder.Services.AddScoped<IIncidentService, IncidentService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -30,6 +32,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler();
 app.UseMiddleware<LoggingMiddleware>();
+
+app.MapEndpoints();
 
 app.MapHealthEndpoints();
 app.MapIncidentEndpoints();
