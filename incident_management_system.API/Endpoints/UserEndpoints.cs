@@ -11,25 +11,6 @@ public static class UserEndpoints
     {
         var group = routes.MapGroup("/api/users").WithTags("User Management");
 
-        group.MapGet("/{id:int}", async (int id, IUserService userService) =>
-        {
-            var user = await userService.GetUserByIdAsync(id);
-
-            if (user is null) return Results.NotFound();
-
-            var response = new UserResponse
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email
-            };
-
-            return Results.Ok(response);
-        })
-        .WithName("GetUserById")
-        .WithSummary("Retrieve a user by ID")
-        .WithDescription("Gets the details of a specific user by its ID.");
-
         group.MapPost("/", async (
             CreateUserRequest request, 
             IUserService userService,
