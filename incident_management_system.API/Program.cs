@@ -1,4 +1,5 @@
 using FluentValidation;
+using incident_management_system.API.Behaviors;
 using incident_management_system.API.Endpoints;
 using incident_management_system.API.ExceptionHandlers;
 using incident_management_system.API.Extensions;
@@ -8,10 +9,12 @@ using incident_management_system.API.Interfaces;
 using incident_management_system.API.Middlewares;
 using incident_management_system.API.Services;
 using incident_management_system.API.Validators.Incident;
+using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwaggerGen();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentRequestValidator>();
@@ -21,6 +24,7 @@ builder.Services.AddScoped<IIncidentService, IncidentService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IncidentInMemoryDb>();
 builder.Services.AddSingleton<UserInMemoryDb>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviors<,>));
 
 var app = builder.Build();
 
