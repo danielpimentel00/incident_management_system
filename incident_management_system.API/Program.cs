@@ -3,12 +3,12 @@ using incident_management_system.API.Behaviors;
 using incident_management_system.API.Endpoints;
 using incident_management_system.API.ExceptionHandlers;
 using incident_management_system.API.Extensions;
+using incident_management_system.API.Features.Incidents.CreateIncident;
 using incident_management_system.API.Health;
 using incident_management_system.API.Infrastructure;
 using incident_management_system.API.Interfaces;
 using incident_management_system.API.Middlewares;
 using incident_management_system.API.Services;
-using incident_management_system.API.Validators.Incident;
 using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentCommandValidator>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
 builder.Services.AddScoped<IIncidentService, IncidentService>();

@@ -1,11 +1,10 @@
 ﻿using FluentValidation;
-using incident_management_system.API.DTOs.Incident;
 
-namespace incident_management_system.API.Validators.Incident;
+namespace incident_management_system.API.Features.Incidents.UpdateIncident;
 
-public class UpdateIncidentRequestValidator : AbstractValidator<UpdateIncidentRequest>
+public class UpdateIncidentCommandValidator : AbstractValidator<UpdateIncidentCommand>
 {
-    public UpdateIncidentRequestValidator()
+    public UpdateIncidentCommandValidator()
     {
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Title is required.")

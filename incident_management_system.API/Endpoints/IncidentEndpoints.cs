@@ -11,33 +11,6 @@ public static class IncidentEndpoints
     {
         var group = routes.MapGroup("/api/incidents").WithTags("Incident Management");
 
-        group.MapPut("/{id:int}", async (
-            int id, 
-            UpdateIncidentRequest request, 
-            IIncidentService incidentService,
-            IValidator<UpdateIncidentRequest> requestValidator) =>
-        {
-            var validationResult = await requestValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                return Results.ValidationProblem(validationResult.ToDictionary());
-            }
-
-            var updatedIncident = new Incident
-            {
-                Title = request.Title,
-                Description = request.Description,
-                Status = request.Status
-            };
-
-            var result = await incidentService.UpdateIncidentAsync(id, updatedIncident);
-
-            return result ? Results.NoContent() : Results.NotFound();
-        })
-        .WithName("UpdateIncident")
-        .WithSummary("Update an existing incident")
-        .WithDescription("Updates the details of an existing incident.");
-
         group.MapDelete("/{id:int}", async (int id, IIncidentService incidentService) =>
         {
             var result = await incidentService.DeleteIncidentAsync(id);
