@@ -1,6 +1,6 @@
-﻿namespace incident_management_system.API.DTOs.User;
+﻿namespace incident_management_system.API.Features.Users.CreateUser;
 
-public class UserResponse
+public class CreatedUser
 {
     public int Id { get; set; }
     public string Username { get; set; } = string.Empty;

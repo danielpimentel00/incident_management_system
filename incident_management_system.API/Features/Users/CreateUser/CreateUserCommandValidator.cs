@@ -1,11 +1,10 @@
 ﻿using FluentValidation;
-using incident_management_system.API.DTOs.User;
 
-namespace incident_management_system.API.Validators.User;
+namespace incident_management_system.API.Features.Users.CreateUser;
 
-public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
+public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
-    public CreateUserRequestValidator()
+    public CreateUserCommandValidator()
     {
         RuleFor(x => x.Username)
             .NotEmpty().WithMessage("Username is required.")
