@@ -11,27 +11,6 @@ public static class IncidentEndpoints
     {
         var group = routes.MapGroup("/api/incidents").WithTags("Incident Management");
 
-        group.MapGet("/{id:int}", async (int id, IIncidentService incidentService) =>
-        {
-            var incident = await incidentService.GetIncidentByIdAsync(id);
-
-            if (incident is null) return Results.NotFound();
-
-            var response = new IncidentResponse
-            {
-                Id = incident.Id,
-                Title = incident.Title,
-                Description = incident.Description,
-                ResolvedAt = incident.ResolvedAt,
-                Status = incident.Status
-            };
-
-            return Results.Ok(response);
-        })
-        .WithName("GetIncidentById")
-        .WithSummary("Retrieve an incident by ID")
-        .WithDescription("Gets the details of a specific incident by its ID.");
-
         group.MapPost("/", async (
             CreateIncidentRequest request, 
             IIncidentService incidentService,
