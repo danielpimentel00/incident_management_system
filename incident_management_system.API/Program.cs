@@ -20,7 +20,6 @@ builder.Services.AddProblemDetails();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentCommandValidator>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
-builder.Services.AddScoped<IIncidentService, IncidentService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IncidentInMemoryDb>();
 builder.Services.AddSingleton<UserInMemoryDb>();
@@ -40,7 +39,6 @@ app.UseMiddleware<LoggingMiddleware>();
 app.MapEndpoints();
 
 app.MapHealthEndpoints();
-app.MapIncidentEndpoints();
 app.MapUserEndpoints();
 
 app.Run();
