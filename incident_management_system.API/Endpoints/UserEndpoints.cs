@@ -11,28 +11,6 @@ public static class UserEndpoints
     {
         var group = routes.MapGroup("/api/users").WithTags("User Management");
 
-        group.MapGet("/", async (IUserService userService) =>
-        {
-            var users = await userService.GetAllUsersAsync();
-
-            var response = new List<UserResponse>();
-
-            foreach (var user in users)
-            {
-                response.Add(new UserResponse
-                {
-                    Id = user.Id,
-                    Username = user.Username,
-                    Email = user.Email
-                });
-            }
-
-            return Results.Ok(response);
-        })
-        .WithName("GetAllUsers")
-        .WithSummary("Retrieve all users")
-        .WithDescription("Gets a list of all users in the system.");
-
         group.MapGet("/{id:int}", async (int id, IUserService userService) =>
         {
             var user = await userService.GetUserByIdAsync(id);
