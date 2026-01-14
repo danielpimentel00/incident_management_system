@@ -7,15 +7,23 @@ using incident_management_system.API.Health;
 using incident_management_system.API.Infrastructure;
 using incident_management_system.API.Middlewares;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<IncidentDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDB"));
+});
+
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentCommandValidator>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+
 
 builder.Services.AddSingleton<IncidentInMemoryDb>();
 builder.Services.AddSingleton<UserInMemoryDb>();
