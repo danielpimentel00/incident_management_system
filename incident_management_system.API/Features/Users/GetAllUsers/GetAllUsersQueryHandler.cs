@@ -1,20 +1,21 @@
 ﻿using incident_management_system.API.Infrastructure;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace incident_management_system.API.Features.Users.GetAllUsers;
 
 public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, List<UserListItem>>
 {
-    private readonly UserInMemoryDb _userInMemoryDb;
+    private readonly IncidentDbContext _dbContext;
 
-    public GetAllUsersQueryHandler(UserInMemoryDb userInMemoryDb)
+    public GetAllUsersQueryHandler(IncidentDbContext dbContext)
     {
-        _userInMemoryDb = userInMemoryDb;
+        _dbContext = dbContext;
     }
 
-    public Task<List<UserListItem>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+    public async Task<List<UserListItem>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
     {
-        var users = _userInMemoryDb.Users.ToList();
+        var users = await _dbContext.Users.ToListAsync(cancellationToken);
 
         var userListItems = users.Select(user => new UserListItem
         {
@@ -23,6 +24,6 @@ public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, List<Us
             Email = user.Email
         }).ToList();
 
-        return Task.FromResult(userListItems);
+        return userListItems;
     }
 }

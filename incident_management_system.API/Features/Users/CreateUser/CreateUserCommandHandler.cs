@@ -6,34 +6,31 @@ namespace incident_management_system.API.Features.Users.CreateUser;
 
 public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, CreatedUser>
 {
-    private readonly UserInMemoryDb _userInMemoryDb;
+    private readonly IncidentDbContext _dbContext;
 
-    public CreateUserCommandHandler(UserInMemoryDb userInMemoryDb)
+    public CreateUserCommandHandler(IncidentDbContext dbContext)
     {
-        _userInMemoryDb = userInMemoryDb;
+        _dbContext = dbContext;
     }
 
-    public Task<CreatedUser> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<CreatedUser> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        var newId = _userInMemoryDb.Users.Count > 0
-            ? _userInMemoryDb.Users.Max(u => u.Id) + 1
-            : 1;
         var newUser = new User
         {
-            Id = newId,
             Email = request.Email,
             Username = request.Username,
         };
 
-        _userInMemoryDb.Users.Add(newUser);
+        var createdUser = await _dbContext.Users.AddAsync(newUser, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
-        CreatedUser createdUser = new()
+        CreatedUser response = new()
         {
-            Id = newUser.Id,
-            Email = newUser.Email,
-            Username = newUser.Username
+            Id = createdUser.Entity.Id,
+            Email = createdUser.Entity.Email,
+            Username = createdUser.Entity.Username
         };
 
-        return Task.FromResult(createdUser);
+        return response;
     }
 }

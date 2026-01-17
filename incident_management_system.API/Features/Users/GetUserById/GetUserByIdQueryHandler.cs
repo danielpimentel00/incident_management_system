@@ -1,20 +1,21 @@
 ﻿using incident_management_system.API.Infrastructure;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace incident_management_system.API.Features.Users.GetUserById;
 
 public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDetails?>
 {
-    private readonly UserInMemoryDb _userInMemoryDb;
+    private readonly IncidentDbContext _dbContext;
 
-    public GetUserByIdQueryHandler(UserInMemoryDb userInMemoryDb)
+    public GetUserByIdQueryHandler(IncidentDbContext dbContext)
     {
-        _userInMemoryDb = userInMemoryDb;
+        _dbContext = dbContext;
     }
 
-    public Task<UserDetails?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+    public async Task<UserDetails?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
-        var user = _userInMemoryDb.Users.FirstOrDefault(u => u.Id == request.Id);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
         UserDetails? userDetails = null;
         if (user is not null)
@@ -27,6 +28,6 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDet
             };
         }
 
-        return Task.FromResult(userDetails);
+        return userDetails;
     }
 }

@@ -24,7 +24,6 @@ builder.Services.AddProblemDetails();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentCommandValidator>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
-builder.Services.AddSingleton<UserInMemoryDb>();
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviors<,>));
 
 var app = builder.Build();
