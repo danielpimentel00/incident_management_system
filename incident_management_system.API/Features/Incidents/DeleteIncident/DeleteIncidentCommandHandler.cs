@@ -5,22 +5,24 @@ namespace incident_management_system.API.Features.Incidents.DeleteIncident;
 
 public class DeleteIncidentCommandHandler : IRequestHandler<DeleteIncidentCommand, bool>
 {
-    private readonly IncidentInMemoryDb _incidentInMemoryDb;
+    private readonly IncidentDbContext _dbContext;
 
-    public DeleteIncidentCommandHandler(IncidentInMemoryDb incidentInMemoryDb)
+    public DeleteIncidentCommandHandler(IncidentDbContext dbContext)
     {
-        _incidentInMemoryDb = incidentInMemoryDb;
+        _dbContext = dbContext;
     }
 
-    public Task<bool> Handle(DeleteIncidentCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(DeleteIncidentCommand request, CancellationToken cancellationToken)
     {
-        var incident = _incidentInMemoryDb.Incidents.FirstOrDefault(i => i.Id == request.Id);
+        var incident = await _dbContext.Incidents.FindAsync(request.Id, cancellationToken);
         if (incident is null)
         {
-            return Task.FromResult(false);
+            return false;
         }
 
-        _incidentInMemoryDb.Incidents.Remove(incident);
-        return Task.FromResult(true);
+        _dbContext.Incidents.Remove(incident);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
 }

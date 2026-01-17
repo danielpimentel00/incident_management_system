@@ -6,36 +6,33 @@ namespace incident_management_system.API.Features.Incidents.CreateIncident;
 
 public class CreateIncidentCommandHandler : IRequestHandler<CreateIncidentCommand, CreatedIncident>
 {
-    private readonly IncidentInMemoryDb _incidentInMemoryDb;
+    private readonly IncidentDbContext _dbContext;
 
-    public CreateIncidentCommandHandler(IncidentInMemoryDb incidentInMemoryDb)
+    public CreateIncidentCommandHandler(IncidentDbContext dbContext)
     {
-        _incidentInMemoryDb = incidentInMemoryDb;
+        _dbContext = dbContext;
     }
 
-    public Task<CreatedIncident> Handle(CreateIncidentCommand request, CancellationToken cancellationToken)
+    public async Task<CreatedIncident> Handle(CreateIncidentCommand request, CancellationToken cancellationToken)
     {
-        var newIncidentId = _incidentInMemoryDb.Incidents.Count > 0
-            ? _incidentInMemoryDb.Incidents.Max(i => i.Id) + 1
-            : 1;
         var newIncident = new Incident
         {
-            Id = newIncidentId,
             Title = request.Title,
             Description = request.Description,
             CreatedAt = DateTime.UtcNow
         };
-        _incidentInMemoryDb.Incidents.Add(newIncident);
+        var createdIncident = await _dbContext.Incidents.AddAsync(newIncident, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
-        var createdIncident = new CreatedIncident
+        var response = new CreatedIncident
         {
-            Id = newIncident.Id,
-            Title = newIncident.Title,
-            Description = newIncident.Description,
-            ResolvedAt = newIncident.ResolvedAt,
-            Status = newIncident.Status
+            Id = createdIncident.Entity.Id,
+            Title = createdIncident.Entity.Title,
+            Description = createdIncident.Entity.Description,
+            ResolvedAt = createdIncident.Entity.ResolvedAt,
+            Status = createdIncident.Entity.Status
         };
 
-        return Task.FromResult(createdIncident);
+        return response;
     }
 }

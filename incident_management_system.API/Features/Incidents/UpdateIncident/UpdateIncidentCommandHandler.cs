@@ -1,33 +1,35 @@
 ﻿using incident_management_system.API.Enums;
 using incident_management_system.API.Infrastructure;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace incident_management_system.API.Features.Incidents.UpdateIncident;
 
 public class UpdateIncidentCommandHandler : IRequestHandler<UpdateIncidentCommand, bool>
 {
-    private readonly IncidentInMemoryDb _incidentInMemoryDb;
+    private readonly IncidentDbContext _dbContext;
 
-    public UpdateIncidentCommandHandler(IncidentInMemoryDb incidentInMemoryDb)
+    public UpdateIncidentCommandHandler(IncidentDbContext dbContext)
     {
-        _incidentInMemoryDb = incidentInMemoryDb;
+        _dbContext = dbContext;
     }
 
-    public Task<bool> Handle(UpdateIncidentCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(UpdateIncidentCommand request, CancellationToken cancellationToken)
     {
-        var index = _incidentInMemoryDb.Incidents.FindIndex(i => i.Id == request.Id);
-        if (index == -1)
+        var incident = await _dbContext.Incidents.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        if (incident is null)
         {
-            return Task.FromResult(false);
+            return false;
         }
 
-        var incident = _incidentInMemoryDb.Incidents[index];
         incident.Title = request.Title;
         incident.Description = request.Description;
         incident.Status = request.Status;
 
         if (incident.Status == IncidentStatus.Resolved) incident.ResolvedAt = DateTime.UtcNow;
 
-        return Task.FromResult(true);
+        await _dbContext.SaveChangesAsync();
+
+        return true;
     }
 }

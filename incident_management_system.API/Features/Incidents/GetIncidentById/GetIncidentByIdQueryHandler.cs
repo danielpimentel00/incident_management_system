@@ -1,20 +1,21 @@
 ﻿using incident_management_system.API.Infrastructure;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace incident_management_system.API.Features.Incidents.GetIncidentById;
 
 public class GetIncidentByIdQueryHandler : IRequestHandler<GetIncidentByIdQuery, IncidentDetails?>
 {
-    private readonly IncidentInMemoryDb _incidentInMemoryDb;
+    private readonly IncidentDbContext _dbContext;
 
-    public GetIncidentByIdQueryHandler(IncidentInMemoryDb incidentInMemoryDb)
+    public GetIncidentByIdQueryHandler(IncidentDbContext dbContext)
     {
-        _incidentInMemoryDb = incidentInMemoryDb;
+        _dbContext = dbContext;
     }
 
-    public Task<IncidentDetails?> Handle(GetIncidentByIdQuery request, CancellationToken cancellationToken)
+    public async Task<IncidentDetails?> Handle(GetIncidentByIdQuery request, CancellationToken cancellationToken)
     {
-        var incident = _incidentInMemoryDb.Incidents.FirstOrDefault(i => i.Id == request.Id);
+        var incident = await _dbContext.Incidents.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
         IncidentDetails? incidentDetails = null;
         if (incident is not null)
@@ -29,6 +30,6 @@ public class GetIncidentByIdQueryHandler : IRequestHandler<GetIncidentByIdQuery,
             };
         }
         
-        return Task.FromResult(incidentDetails);
+        return incidentDetails;
     }
 }
