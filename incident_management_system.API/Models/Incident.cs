@@ -10,4 +10,9 @@ public class Incident
     public DateTime CreatedAt { get; set; }
     public DateTime? ResolvedAt { get; set; }
     public IncidentStatus Status { get; set; } = IncidentStatus.Open;
+
+    public int CreatedByUserId { get; set; }
+    public User CreatedByUser { get; set; } = null!;
+
+    public ICollection<IncidentComment> Comments { get; set; } = [];
 }

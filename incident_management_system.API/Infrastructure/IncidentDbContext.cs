@@ -37,6 +37,11 @@ public class IncidentDbContext : DbContext
 
             entity.Property(e => e.Status)
             .IsRequired();
+
+            entity.HasOne(e => e.CreatedByUser)
+            .WithMany(u => u.CreatedIncidents)
+            .HasForeignKey(e => e.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -55,6 +60,30 @@ public class IncidentDbContext : DbContext
 
             entity.Property(e => e.Role)
             .IsRequired();
+        });
+
+        modelBuilder.Entity<IncidentComment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Content)
+            .IsRequired()
+            .HasMaxLength(1000);
+
+            entity.Property(e => e.CreatedAt)
+            .IsRequired();
+
+            entity.HasOne(e => e.Incident)
+            .WithMany(i => i.Comments)
+            .HasForeignKey(e => e.IncidentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.User)
+            .WithMany(u => u.Comments)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -16,6 +16,8 @@ public class IncidentDbContextFactory : IDesignTimeDbContextFactory<IncidentDbCo
 
         optionsBuilder.UseNpgsql(connectionString);
 
+        optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
+
         return new IncidentDbContext(optionsBuilder.Options);
     }
 }
