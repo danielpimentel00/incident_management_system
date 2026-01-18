@@ -15,7 +15,11 @@ public class GetIncidentByIdQueryHandler : IRequestHandler<GetIncidentByIdQuery,
 
     public async Task<IncidentDetails?> Handle(GetIncidentByIdQuery request, CancellationToken cancellationToken)
     {
-        var incident = await _dbContext.Incidents.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var incident = await _dbContext.Incidents
+            .AsNoTracking()
+            .Include(x => x.CreatedByUser)
+            .Include(x => x.Comments)
+            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
         IncidentDetails? incidentDetails = null;
         if (incident is not null)
@@ -26,7 +30,10 @@ public class GetIncidentByIdQueryHandler : IRequestHandler<GetIncidentByIdQuery,
                 Title = incident.Title,
                 Description = incident.Description,
                 ResolvedAt = incident.ResolvedAt,
-                Status = incident.Status
+                Status = incident.Status,
+                CreatedByUserId = incident.CreatedByUserId,
+                CreatedByUserName = incident.CreatedByUser.Username,
+                Comments = incident.Comments.Select(c => c.Content).ToList()
             };
         }
         

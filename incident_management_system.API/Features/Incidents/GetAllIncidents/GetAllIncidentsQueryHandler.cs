@@ -15,7 +15,12 @@ public class GetAllIncidentsQueryHandler : IRequestHandler<GetAllIncidentsQuery,
 
     public async Task<List<IncidentListItem>> Handle(GetAllIncidentsQuery request, CancellationToken cancellationToken)
     {
-        var items = await _dbContext.Incidents.ToListAsync(cancellationToken);
+        var items = await _dbContext.Incidents
+            .AsNoTracking()
+            .Include(x => x.Comments)
+            .Include(x => x.CreatedByUser)
+            .AsSplitQuery()
+            .ToListAsync(cancellationToken);
 
         var response = new List<IncidentListItem>();
         foreach (var item in items)
@@ -26,7 +31,10 @@ public class GetAllIncidentsQueryHandler : IRequestHandler<GetAllIncidentsQuery,
                 Title = item.Title,
                 Description = item.Description,
                 ResolvedAt = item.ResolvedAt,
-                Status = item.Status
+                Status = item.Status,
+                CreatedByUserId = item.CreatedByUserId,
+                CreatedByUserName = item.CreatedByUser.Username,
+                Comments = item.Comments.Select(c => c.Content).ToList()
             });
         }
 
