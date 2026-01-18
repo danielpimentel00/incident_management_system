@@ -78,7 +78,7 @@ public class IncidentDbContext : DbContext
             entity.HasOne(e => e.Incident)
             .WithMany(i => i.Comments)
             .HasForeignKey(e => e.IncidentId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(e => e.User)
             .WithMany(u => u.Comments)
