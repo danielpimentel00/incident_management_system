@@ -20,24 +20,19 @@ public class GetAllIncidentsQueryHandler : IRequestHandler<GetAllIncidentsQuery,
             .Include(x => x.Comments)
             .Include(x => x.CreatedByUser)
             .AsSplitQuery()
+            .Select(x => new IncidentListItem
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Description = x.Description,
+                ResolvedAt = x.ResolvedAt,
+                Status = x.Status,
+                CreatedByUserId = x.CreatedByUserId,
+                CreatedByUserName = x.CreatedByUser.Username,
+                Comments = x.Comments.Select(c => c.Content).ToList()
+            })
             .ToListAsync(cancellationToken);
 
-        var response = new List<IncidentListItem>();
-        foreach (var item in items)
-        {
-            response.Add(new IncidentListItem
-            {
-                Id = item.Id,
-                Title = item.Title,
-                Description = item.Description,
-                ResolvedAt = item.ResolvedAt,
-                Status = item.Status,
-                CreatedByUserId = item.CreatedByUserId,
-                CreatedByUserName = item.CreatedByUser.Username,
-                Comments = item.Comments.Select(c => c.Content).ToList()
-            });
-        }
-
-        return response;
+        return items;
     }
 }

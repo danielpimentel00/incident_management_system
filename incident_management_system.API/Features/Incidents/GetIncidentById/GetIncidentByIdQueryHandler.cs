@@ -19,24 +19,19 @@ public class GetIncidentByIdQueryHandler : IRequestHandler<GetIncidentByIdQuery,
             .AsNoTracking()
             .Include(x => x.CreatedByUser)
             .Include(x => x.Comments)
-            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-        IncidentDetails? incidentDetails = null;
-        if (incident is not null)
-        {
-            incidentDetails = new IncidentDetails
+            .Select(x => new IncidentDetails
             {
-                Id = incident.Id,
-                Title = incident.Title,
-                Description = incident.Description,
-                ResolvedAt = incident.ResolvedAt,
-                Status = incident.Status,
-                CreatedByUserId = incident.CreatedByUserId,
-                CreatedByUserName = incident.CreatedByUser.Username,
-                Comments = incident.Comments.Select(c => c.Content).ToList()
-            };
-        }
+                Id = x.Id,
+                Title = x.Title,
+                Description = x.Description,
+                ResolvedAt = x.ResolvedAt,
+                Status = x.Status,
+                CreatedByUserId = x.CreatedByUserId,
+                CreatedByUserName = x.CreatedByUser.Username,
+                Comments = x.Comments.Select(c => c.Content).ToList()
+            })
+            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
         
-        return incidentDetails;
+        return incident;
     }
 }

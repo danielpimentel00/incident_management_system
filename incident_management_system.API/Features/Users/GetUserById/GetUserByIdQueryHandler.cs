@@ -15,19 +15,14 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDet
 
     public async Task<UserDetails?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-        UserDetails? userDetails = null;
-        if (user is not null)
-        {
-            userDetails = new()
+        var user = await _dbContext.Users
+            .Select(x => new UserDetails
             {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-            };
-        }
+                Id = x.Id,
+                Username = x.Username,
+                Email = x.Email,
+            }).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-        return userDetails;
+        return user;
     }
 }

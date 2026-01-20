@@ -1,4 +1,5 @@
 ﻿using incident_management_system.API.Infrastructure;
+using incident_management_system.API.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,15 +16,14 @@ public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, List<Us
 
     public async Task<List<UserListItem>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
     {
-        var users = await _dbContext.Users.ToListAsync(cancellationToken);
+        var users = await _dbContext.Users
+            .Select(x => new UserListItem
+            {
+                Id = x.Id,
+                Username = x.Username,
+                Email = x.Email
+            }).ToListAsync(cancellationToken);
 
-        var userListItems = users.Select(user => new UserListItem
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
-        }).ToList();
-
-        return userListItems;
+        return users;
     }
 }
