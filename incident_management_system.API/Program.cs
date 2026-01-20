@@ -25,6 +25,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentCommandValida
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviors<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
 var app = builder.Build();
 
