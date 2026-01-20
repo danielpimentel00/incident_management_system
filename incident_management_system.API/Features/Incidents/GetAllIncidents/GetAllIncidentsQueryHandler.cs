@@ -17,8 +17,6 @@ public class GetAllIncidentsQueryHandler : IRequestHandler<GetAllIncidentsQuery,
     {
         var items = await _dbContext.Incidents
             .AsNoTracking()
-            .Include(x => x.Comments)
-            .Include(x => x.CreatedByUser)
             .AsSplitQuery()
             .Select(x => new IncidentListItem
             {

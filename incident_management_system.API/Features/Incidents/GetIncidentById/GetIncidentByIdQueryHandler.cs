@@ -17,8 +17,6 @@ public class GetIncidentByIdQueryHandler : IRequestHandler<GetIncidentByIdQuery,
     {
         var incident = await _dbContext.Incidents
             .AsNoTracking()
-            .Include(x => x.CreatedByUser)
-            .Include(x => x.Comments)
             .Select(x => new IncidentDetails
             {
                 Id = x.Id,
