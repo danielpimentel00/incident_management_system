@@ -7,9 +7,16 @@ public class GetAllIncidentsEndpoint : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        routes.MapGet("/api/incidents", async (IMediator mediator) =>
+        routes.MapGet("/api/incidents", async (
+            int pageNumber,
+            int pageCount,
+            IMediator mediator) =>
         {
-            var incidents = await mediator.Send(new GetAllIncidentsQuery());
+            var incidents = await mediator.Send(new GetAllIncidentsQuery
+            {
+                PageNumber = pageNumber,
+                PageCount = pageCount
+            });
             return Results.Ok(incidents);
         })
         .WithTags("Incident Management")
