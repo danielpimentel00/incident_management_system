@@ -1,5 +1,6 @@
 ﻿using incident_management_system.API.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace incident_management_system.API.Features.Incidents.GetAllIncidents;
 
@@ -22,6 +23,7 @@ public class GetAllIncidentsEndpoint : IEndpoint
         .WithTags("Incident Management")
         .WithName("GetAllIncidents")
         .WithSummary("Retrieve all incidents")
-        .WithDescription("Gets a list of all incidents in the system.");
+        .WithDescription("Gets a list of all incidents in the system.")
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Agent"} );
     }
 }

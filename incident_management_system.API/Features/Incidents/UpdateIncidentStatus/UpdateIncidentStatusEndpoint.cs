@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using incident_management_system.API.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace incident_management_system.API.Features.Incidents.UpdateIncidentStatus;
 
@@ -25,6 +26,7 @@ public class UpdateIncidentStatusEndpoint : IEndpoint
         .WithTags("Incident Management")
         .WithName("UpdateIncidentStatus")
         .WithSummary("Update the status of an existing incident")
-        .WithDescription("Updates the status of an existing incident.");
+        .WithDescription("Updates the status of an existing incident.")
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Supervisor" });
     }
 }

@@ -1,5 +1,6 @@
 ﻿using incident_management_system.API.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace incident_management_system.API.Features.Incidents.DeleteIncident;
 
@@ -15,6 +16,7 @@ public class DeleteIncidentEndpoint : IEndpoint
         .WithTags("Incident Management")
         .WithName("DeleteIncident")
         .WithSummary("Delete an incident")
-        .WithDescription("Deletes an incident from the system.");
+        .WithDescription("Deletes an incident from the system.")
+        .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
     }
 }
