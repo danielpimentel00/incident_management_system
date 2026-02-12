@@ -1,5 +1,4 @@
 ﻿using incident_management_system.API.Infrastructure;
-using incident_management_system.API.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="IMS.Domain/IMS.Domain.csproj" Id="3996dfce-b982-4a40-9a19-cf95ea3986d5" />
     <Project Path="incident_management_system.API/incident_management_system.API.csproj" />
   </Folder>
 </Solution>

@@ -1,4 +1,4 @@
-﻿namespace incident_management_system.API.Enums;
+﻿namespace IMS.Domain.Enums;
 
 public enum IncidentStatus
 {

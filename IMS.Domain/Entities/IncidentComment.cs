@@ -1,4 +1,4 @@
-﻿namespace incident_management_system.API.Models;
+﻿namespace IMS.Domain.Entities;
 
 public class IncidentComment
 {

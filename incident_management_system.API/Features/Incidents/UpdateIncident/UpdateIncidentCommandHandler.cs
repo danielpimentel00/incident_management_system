@@ -1,4 +1,4 @@
-﻿using incident_management_system.API.Enums;
+﻿using IMS.Domain.Enums;
 using incident_management_system.API.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

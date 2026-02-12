@@ -1,5 +1,5 @@
-﻿using incident_management_system.API.Infrastructure;
-using incident_management_system.API.Models;
+﻿using IMS.Domain.Entities;
+using incident_management_system.API.Infrastructure;
 using MediatR;
 
 namespace incident_management_system.API.Features.Incidents.CreateIncident;

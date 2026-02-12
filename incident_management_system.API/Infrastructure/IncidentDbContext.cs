@@ -1,4 +1,4 @@
-﻿using incident_management_system.API.Models;
+﻿using IMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace incident_management_system.API.Infrastructure;

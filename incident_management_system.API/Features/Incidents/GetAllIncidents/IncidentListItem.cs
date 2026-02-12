@@ -1,4 +1,4 @@
-﻿using incident_management_system.API.Enums;
+﻿using IMS.Domain.Enums;
 
 namespace incident_management_system.API.Features.Incidents.GetAllIncidents;
 
