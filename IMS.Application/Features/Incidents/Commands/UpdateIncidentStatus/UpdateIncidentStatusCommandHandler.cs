@@ -14,7 +14,14 @@ public class UpdateIncidentStatusCommandHandler : IRequestHandler<UpdateIncident
 
     public async Task<bool> Handle(UpdateIncidentStatusCommand request, CancellationToken cancellationToken)
     {
-        await _incidentsRepository.UpdateIncidentStatusAsync(request.Id, request.Status);
+        var incident = await _incidentsRepository.GetIncidentByIdAsync(request.Id);
+        
+        if (incident == null)
+            throw new KeyNotFoundException($"Incident with ID {request.Id} not found.");
+
+        incident.UpdateStatus(request.Status);
+
+        await _incidentsRepository.UpdateIncidentAsync(incident);
 
         return true;
     }

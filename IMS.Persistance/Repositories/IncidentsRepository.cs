@@ -66,6 +66,7 @@ public class IncidentsRepository : IIncidentsRepository
         existingIncident.Title = incident.Title;
         existingIncident.Description = incident.Description;
         existingIncident.Status = incident.Status;
+        existingIncident.ResolvedAt = incident.ResolvedAt;
 
         _context.Incidents.Update(existingIncident);
         await _context.SaveChangesAsync();
@@ -82,12 +83,7 @@ public class IncidentsRepository : IIncidentsRepository
             throw new KeyNotFoundException($"Incident with ID {id} not found.");
         }
 
-        incident.Status = status;
-
-        if (status == Domain.Enums.IncidentStatus.Resolved)
-        {
-            incident.ResolvedAt = DateTime.UtcNow;
-        }
+        incident.UpdateStatus(status);
 
         _context.Incidents.Update(incident);
         await _context.SaveChangesAsync();

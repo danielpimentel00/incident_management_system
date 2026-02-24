@@ -15,4 +15,30 @@ public class Incident
     public User CreatedByUser { get; set; } = null!;
 
     public ICollection<IncidentComment> Comments { get; set; } = [];
+
+    public void MarkAsResolved()
+    {
+        Status = IncidentStatus.Resolved;
+        ResolvedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateStatus(IncidentStatus newStatus)
+    {
+        // rule: Cannot reopen a resolved incident
+        if (Status == IncidentStatus.Resolved && newStatus == IncidentStatus.Open)
+            throw new InvalidOperationException(
+                "Cannot reopen a resolved incident. Create a new incident instead.");
+
+        if (Status == newStatus)
+            return;
+
+        if (newStatus == IncidentStatus.Resolved)
+        {
+            MarkAsResolved();
+        }
+        else
+        {
+            Status = newStatus;
+        }
+    }
 }
