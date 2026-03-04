@@ -1,5 +1,6 @@
 using IMS.Application;
 using IMS.Persistance;
+using IMS.Infrastructure;
 using incident_management_system.API.ExceptionHandlers;
 using incident_management_system.API.Extensions;
 using incident_management_system.API.Health;
@@ -12,6 +13,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistanceServices(builder.Configuration);
+builder.Services.AddInfrastructureServices();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<KeyNotFoundExceptionHandler>();
