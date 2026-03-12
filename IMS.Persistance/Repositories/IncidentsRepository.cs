@@ -30,7 +30,16 @@ public class IncidentsRepository : IIncidentsRepository
 
         return (incidents, totalCount);
     }
-    
+
+    public async Task<List<Domain.Entities.Incident>> GetOpenIncidentsAsync()
+    {
+        return await _context.Incidents
+            .Where(i => i.Status == Domain.Enums.IncidentStatus.Open)
+            .OrderByDescending(i => i.CreatedAt)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
     public async Task<Domain.Entities.Incident?> GetIncidentByIdAsync(int id)
     {
         return await _context.Incidents

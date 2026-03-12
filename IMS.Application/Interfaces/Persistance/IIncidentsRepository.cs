@@ -6,6 +6,7 @@ namespace IMS.Application.Interfaces.Persistance;
 public interface IIncidentsRepository
 {
     Task<(List<Incident>, int)> GetAllIncidentsAsync(int pageNumber, int pageCount);
+    Task<List<Incident>> GetOpenIncidentsAsync();
     Task<Incident?> GetIncidentByIdAsync(int id);
     Task<Incident> CreateIncidentAsync(Incident incident);
     Task<Incident> UpdateIncidentAsync(Incident incident);
