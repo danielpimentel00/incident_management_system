@@ -1,5 +1,7 @@
 using IMS.Application;
+using IMS.Persistance;
 using IMS.GrpcService.Services;
+using IMS.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc();
 
 builder.Services.AddApplicationServices();
+builder.Services.AddPersistanceServices(builder.Configuration);
+builder.Services.AddInfrastructureServices();
 
 var app = builder.Build();
 

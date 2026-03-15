@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-IMS.Jobs-b760501b-13b7-4b4b-be35-40cb78d14280</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
+	<PackageReference Include="Google.Protobuf" Version="3.27.0" />
+	<PackageReference Include="Grpc.Net.Client" Version="2.76.0" />
+	<PackageReference Include="Grpc.Net.ClientFactory" Version="2.76.0" />
+	<PackageReference Include="Grpc.Tools" Version="2.64.0">
+	  <PrivateAssets>all</PrivateAssets>
+	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
+  </ItemGroup>
+
+	<ItemGroup>
+		<Protobuf Include="..\IMS.GrpcService\Protos\Incident.proto" GrpcServices="Client" />
+	</ItemGroup>
+</Project>
