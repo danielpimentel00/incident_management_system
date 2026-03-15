@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using IMS.Application.Features.Incidents.Commands.UpdateIncidentStatus;
 using IMS.Application.Features.Incidents.Queries.GetOpenIncidents;
 using IMS.GrpcService.Protos;
 using MediatR;
@@ -34,10 +35,17 @@ public class IncidentGrpcService : IncidentService.IncidentServiceBase
         return response;
     }
 
-    public override Task<EscalateIncidentResponse> EscalateIncident(EscalateIncidentRequest request, ServerCallContext context)
+    public override async Task<EscalateIncidentResponse> EscalateIncident(EscalateIncidentRequest request, ServerCallContext context)
     {
-        // TODO: Implement your logic here
-        var response = new EscalateIncidentResponse { Success = true };
-        return Task.FromResult(response);
+        var cmd = new UpdateIncidentStatusCommand
+        {
+            Id = request.IncidentId,
+            Status = Domain.Enums.IncidentStatus.Escalated
+        };
+        var success = await _mediator.Send(cmd);
+
+        var response = new EscalateIncidentResponse { Success = success };
+
+        return response;
     }
 }

@@ -3,5 +3,6 @@
 public enum IncidentStatus
 {
     Open,
-    Resolved
+    Resolved,
+    Escalated
 }
