@@ -1,5 +1,6 @@
 ﻿using IMS.Application.Interfaces.Infrastructure;
 using IMS.Infrastructure.ExternalServices;
+using IMS.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
@@ -41,6 +42,9 @@ public static class InfrastructureServicesRegistration
                 Timeout = TimeSpan.FromSeconds(12)
             };
         });
+
+        services.AddMemoryCache();
+        services.AddScoped<ICacheService, MemoryCacheService>();
 
         return services;
     }
