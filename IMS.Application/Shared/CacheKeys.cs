@@ -2,5 +2,9 @@
 
 public static class CacheKeys
 {
-    public static string IncidentsList(int pageNumber, int pageSize) => $"incidents:list:{pageNumber}:{pageSize}";
+    public const string OpenIncidents = "incidents:open";
+    public const string IncidentsListPrefix = "incidents:list";
+
+    public static string IncidentsList(int pageNumber, int pageSize) => $"{IncidentsListPrefix}:{pageNumber}:{pageSize}";
+    public static string IncidentById(int id) => $"incident:{id}";
 }
