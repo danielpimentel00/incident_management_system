@@ -17,8 +17,4 @@
     <ProjectReference Include="..\IMS.Domain\IMS.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Incidents\Commands\EscalateIncident\" />
-  </ItemGroup>
-
 </Project>

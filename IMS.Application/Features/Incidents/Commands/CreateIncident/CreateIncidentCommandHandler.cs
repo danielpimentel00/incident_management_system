@@ -1,4 +1,6 @@
-﻿using IMS.Application.Interfaces.Persistance;
+﻿using IMS.Application.Interfaces.Infrastructure;
+using IMS.Application.Interfaces.Persistance;
+using IMS.Application.Shared;
 using IMS.Domain.Entities;
 using MediatR;
 
@@ -7,10 +9,12 @@ namespace IMS.Application.Features.Incidents.Commands.CreateIncident;
 public class CreateIncidentCommandHandler : IRequestHandler<CreateIncidentCommand, CreatedIncident>
 {
     private readonly IIncidentsRepository _incidentsRepository;
+    private readonly ICacheService _cache;
 
-    public CreateIncidentCommandHandler(IIncidentsRepository incidentsRepository)
+    public CreateIncidentCommandHandler(IIncidentsRepository incidentsRepository, ICacheService cache)
     {
         _incidentsRepository = incidentsRepository;
+        _cache = cache;
     }
 
     public async Task<CreatedIncident> Handle(CreateIncidentCommand request, CancellationToken cancellationToken)
@@ -23,6 +27,9 @@ public class CreateIncidentCommandHandler : IRequestHandler<CreateIncidentComman
             CreatedByUserId = request.CreatedByUserId
         };
         var createdIncident = await _incidentsRepository.CreateIncidentAsync(newIncident);
+
+        await _cache.RemoveByPrefixAsync(CacheKeys.IncidentsListPrefix);
+        await _cache.RemoveAsync(CacheKeys.OpenIncidents);
 
         var response = new CreatedIncident
         {
