@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Concurrent;
 
-namespace IMS.Infrastructure.Services;
+namespace IMS.Infrastructure.Services.Cache;
 
 public class MemoryCacheService : ICacheService
 {

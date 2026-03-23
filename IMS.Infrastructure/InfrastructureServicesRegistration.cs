@@ -1,6 +1,6 @@
 ﻿using IMS.Application.Interfaces.Infrastructure;
 using IMS.Infrastructure.ExternalServices;
-using IMS.Infrastructure.Services;
+using IMS.Infrastructure.Services.Cache;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
@@ -44,7 +44,21 @@ public static class InfrastructureServicesRegistration
         });
 
         services.AddMemoryCache();
-        services.AddSingleton<ICacheService, MemoryCacheService>();
+        var redisConfig = new StackExchange.Redis.ConfigurationOptions
+        {
+            EndPoints = { "redis-10964.c56.east-us.azure.cloud.redislabs.com:10964" },
+            User = "default",
+            Password = "LS2oGZjS7RAopazHAhtPU3FMB3yfIPKg"
+        };
+
+        services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
+            StackExchange.Redis.ConnectionMultiplexer.Connect(redisConfig));
+
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.ConfigurationOptions = redisConfig;
+        });
+        services.AddSingleton<ICacheService, RedisCacheService>();
 
         return services;
     }
