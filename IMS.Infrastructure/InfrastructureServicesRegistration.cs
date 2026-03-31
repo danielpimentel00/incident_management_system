@@ -1,6 +1,7 @@
 ﻿using IMS.Application.Interfaces.Infrastructure;
 using IMS.Infrastructure.ExternalServices;
 using IMS.Infrastructure.Services.Cache;
+using IMS.Infrastructure.Services.MessageBroker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
@@ -59,6 +60,11 @@ public static class InfrastructureServicesRegistration
             options.ConfigurationOptions = redisConfig;
         });
         services.AddSingleton<ICacheService, RedisCacheService>();
+
+        services.AddSingleton<IEventBus>(sp =>
+        {
+            return RabbitMqEventBus.CreateAsync().GetAwaiter().GetResult();
+        });
 
         return services;
     }

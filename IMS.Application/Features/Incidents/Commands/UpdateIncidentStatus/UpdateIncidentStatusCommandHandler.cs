@@ -1,4 +1,5 @@
-﻿using IMS.Application.Interfaces.Infrastructure;
+﻿using IMS.Application.Events;
+using IMS.Application.Interfaces.Infrastructure;
 using IMS.Application.Interfaces.Persistance;
 using IMS.Application.Shared;
 using IMS.Domain.Enums;
@@ -9,17 +10,17 @@ namespace IMS.Application.Features.Incidents.Commands.UpdateIncidentStatus;
 public class UpdateIncidentStatusCommandHandler : IRequestHandler<UpdateIncidentStatusCommand, bool>
 {
     private readonly IIncidentsRepository _incidentsRepository;
-    private readonly INotificationService _notificationService;
     private readonly ICacheService _cache;
+    private readonly IEventBus _eventBus;
 
     public UpdateIncidentStatusCommandHandler(
         IIncidentsRepository incidentsRepository,
-        INotificationService notificationService,
-        ICacheService cache)
+        ICacheService cache,
+        IEventBus eventBus)
     {
         _incidentsRepository = incidentsRepository;
-        _notificationService = notificationService;
         _cache = cache;
+        _eventBus = eventBus;
     }
 
     public async Task<bool> Handle(UpdateIncidentStatusCommand request, CancellationToken cancellationToken)
@@ -39,9 +40,10 @@ public class UpdateIncidentStatusCommandHandler : IRequestHandler<UpdateIncident
 
         if (request.Status == IncidentStatus.Resolved)
         {
-            await _notificationService.SendEscalationNotificationAsync(
+            await _eventBus.PublishAsync(new IncidentEscalatedEvent(
                 request.Id,
-                $"Incident #{request.Id} has been resolved.");
+                request.Status.ToString(),
+                DateTime.UtcNow));
         }
 
         return true;
