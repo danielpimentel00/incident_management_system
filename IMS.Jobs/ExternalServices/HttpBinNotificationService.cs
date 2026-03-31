@@ -1,9 +1,8 @@
-﻿using IMS.Application.Interfaces.Infrastructure;
-using Microsoft.Extensions.Logging;
+﻿using IMS.Jobs.Interfaces;
 using System.Diagnostics;
 using System.Net.Http.Json;
 
-namespace IMS.Infrastructure.ExternalServices;
+namespace IMS.Jobs.ExternalServices;
 
 public class HttpBinNotificationService : INotificationService
 {
