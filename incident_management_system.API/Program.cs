@@ -6,11 +6,18 @@ using incident_management_system.API.Extensions;
 using incident_management_system.API.Health;
 using incident_management_system.API.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSerilog(op =>
+{
+    op.Enrich.FromLogContext();
+    op.WriteTo.Console();
+    op.WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day);
+});
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistanceServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();
