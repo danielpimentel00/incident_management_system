@@ -1,9 +1,19 @@
 using IMS.Application;
-using IMS.Persistance;
 using IMS.GrpcService.Services;
 using IMS.Infrastructure;
+using IMS.Persistance;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.GrpcService"));
+        tracing.AddAspNetCoreInstrumentation();
+        tracing.AddConsoleExporter();
+    });
 
 // Add services to the container.
 builder.Services.AddGrpc();

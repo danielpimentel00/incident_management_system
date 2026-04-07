@@ -7,10 +7,21 @@ using incident_management_system.API.Health;
 using incident_management_system.API.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.API"));
+        tracing.AddAspNetCoreInstrumentation();
+        tracing.AddHttpClientInstrumentation();
+        tracing.AddConsoleExporter();
+    });
 
 builder.Services.AddSerilog(op =>
 {

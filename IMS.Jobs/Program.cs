@@ -3,9 +3,21 @@ using IMS.Jobs.ExternalServices;
 using IMS.Jobs.Interfaces;
 using IMS.Jobs.Services;
 using Microsoft.Extensions.Http.Resilience;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Polly;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.Jobs"));
+        tracing.AddHttpClientInstrumentation();
+        tracing.AddGrpcClientInstrumentation();
+        tracing.AddConsoleExporter();
+    });
+
 builder.Services.AddHostedService<IncidentEscalationService>();
 builder.Services.AddHostedService<ApiHealthCheckService>();
 builder.Services.AddHostedService<IncidentEscalationConsumer>();
