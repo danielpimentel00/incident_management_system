@@ -3,11 +3,23 @@ using IMS.Jobs.ExternalServices;
 using IMS.Jobs.Interfaces;
 using IMS.Jobs.Services;
 using Microsoft.Extensions.Http.Resilience;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Polly;
+using Serilog;
+using Serilog.Enrichers.Span;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddSerilog(configuration => configuration
+    .Enrich.FromLogContext()
+    .Enrich.WithSpan()
+    .Enrich.WithProperty("Application", "IMS.Jobs")
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.Seq(builder.Configuration["Seq:ServerUrl"]!)
+);
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing =>
@@ -16,6 +28,13 @@ builder.Services.AddOpenTelemetry()
         tracing.AddHttpClientInstrumentation();
         tracing.AddGrpcClientInstrumentation();
         tracing.AddConsoleExporter();
+    })
+    .WithMetrics(metrics =>
+    {
+        metrics.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.Jobs"));
+        metrics.AddHttpClientInstrumentation();
+        metrics.AddRuntimeInstrumentation();
+        metrics.AddPrometheusHttpListener(options => options.UriPrefixes = new[] { "http://localhost:9464/" });
     });
 
 builder.Services.AddHostedService<IncidentEscalationService>();

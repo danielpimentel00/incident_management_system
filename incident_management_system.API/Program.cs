@@ -1,14 +1,16 @@
 using IMS.Application;
-using IMS.Persistance;
 using IMS.Infrastructure;
+using IMS.Persistance;
 using incident_management_system.API.ExceptionHandlers;
 using incident_management_system.API.Extensions;
 using incident_management_system.API.Health;
 using incident_management_system.API.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Serilog;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Enrichers.Span;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,14 +23,25 @@ builder.Services.AddOpenTelemetry()
         tracing.AddAspNetCoreInstrumentation();
         tracing.AddHttpClientInstrumentation();
         tracing.AddConsoleExporter();
+    })
+    .WithMetrics(metrics =>
+    {
+        metrics.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.API"));
+        metrics.AddAspNetCoreInstrumentation();
+        metrics.AddHttpClientInstrumentation();
+        metrics.AddRuntimeInstrumentation();     // .NET runtime metrics (GC, memory, threads)
+        metrics.AddPrometheusExporter();
     });
 
-builder.Services.AddSerilog(op =>
-{
-    op.Enrich.FromLogContext();
-    op.WriteTo.Console();
-    op.WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day);
-});
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .Enrich.FromLogContext()
+    .Enrich.WithSpan()
+    .Enrich.WithProperty("Application", "IMS.API")
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.Seq(builder.Configuration["Seq:ServerUrl"]!)
+);
+
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistanceServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();
@@ -65,5 +78,7 @@ app.UseMiddleware<LoggingMiddleware>();
 app.MapEndpoints();
 
 app.MapHealthEndpoints();
+
+app.MapPrometheusScrapingEndpoint();
 
 app.Run();
