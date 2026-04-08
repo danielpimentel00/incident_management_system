@@ -22,14 +22,22 @@ builder.Services.AddOpenTelemetry()
         tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.API"));
         tracing.AddAspNetCoreInstrumentation();
         tracing.AddHttpClientInstrumentation();
-        tracing.AddConsoleExporter();
+        tracing.AddOtlpExporter(options =>
+        {
+            options.Endpoint = new Uri(builder.Configuration["Jaeger:Endpoint"]!);
+        });
+
+        if (builder.Environment.IsDevelopment())
+        {
+            tracing.AddConsoleExporter();
+        }
     })
     .WithMetrics(metrics =>
     {
         metrics.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.API"));
         metrics.AddAspNetCoreInstrumentation();
         metrics.AddHttpClientInstrumentation();
-        metrics.AddRuntimeInstrumentation();     // .NET runtime metrics (GC, memory, threads)
+        metrics.AddRuntimeInstrumentation();
         metrics.AddPrometheusExporter();
     });
 

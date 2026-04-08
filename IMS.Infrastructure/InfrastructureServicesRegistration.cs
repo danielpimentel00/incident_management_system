@@ -14,7 +14,8 @@ public static class InfrastructureServicesRegistration
         {
             EndPoints = { "redis-10964.c56.east-us.azure.cloud.redislabs.com:10964" },
             User = "default",
-            Password = "LS2oGZjS7RAopazHAhtPU3FMB3yfIPKg"
+            Password = "LS2oGZjS7RAopazHAhtPU3FMB3yfIPKg",
+            AbortOnConnectFail = false
         };
 
         services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>

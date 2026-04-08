@@ -15,7 +15,15 @@ builder.Services.AddOpenTelemetry()
     {
         tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.GrpcService"));
         tracing.AddAspNetCoreInstrumentation();
-        tracing.AddConsoleExporter();
+        tracing.AddOtlpExporter(options =>
+        {
+            options.Endpoint = new Uri(builder.Configuration["Jaeger:Endpoint"]!);
+        });
+
+        if (builder.Environment.IsDevelopment())
+        {
+            tracing.AddConsoleExporter();
+        }
     })
     .WithMetrics(metrics =>
     {
