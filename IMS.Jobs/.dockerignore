@@ -1,0 +1,77 @@
+# =========================
+# Build artifacts
+# =========================
+bin/
+obj/
+out/
+publish/
+
+# =========================
+# User-specific files
+# =========================
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# =========================
+# IDE / Editor
+# =========================
+.vs/
+.vscode/
+.idea/
+
+# =========================
+# Git
+# =========================
+.git/
+.gitignore
+.gitattributes
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Environment / secrets
+# =========================
+.env
+.env.*
+secrets.json
+appsettings.Development.json
+
+# =========================
+# Node (if using Blazor WASM or frontend tooling)
+# =========================
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# =========================
+# Docker-related (optional)
+# =========================
+docker-compose*
+Dockerfile*
+.dockerignore
+
+# =========================
+# Test artifacts
+# =========================
+TestResults/
+coverage/
+*.coverage
+*.trx
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.temp
