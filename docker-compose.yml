@@ -1,0 +1,88 @@
+version: '1.0'
+
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: incident_management_system.API/Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Debug
+        - APP_PORT=5142
+    image: ims.api:dev
+    ports:
+      - 5142:5142
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JWT__Authority=http://keycloak:8080/realms/Incident_management_system_realm
+      - JWT__Audience=incident_management_api
+      - ConnectionStrings__PostgresDB=Host=db;Port=5432;Database=incident_management;Username=incident_user;Password=incident_user
+      - Seq__ServerUrl=http://seq:5341
+      - Jaeger__Endpoint=http://jaeger:4317
+      - Redis__Endpoint=redis:6379
+      - Redis__User=default
+    container_name: ims.api.dev
+    depends_on:
+      - keycloak
+      - db
+      - seq
+      - jaeger
+      - redis
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.2
+    command: start-dev
+    ports: 
+      - 8080:8080
+    environment:
+      - KC_HOSTNAME=keycloak
+    container_name: ims.keycloak
+    volumes:
+      - ims-keycloak-data:/opt/keycloak/data
+ 
+  db:
+    image: postgres:18
+    environment:
+      - POSTGRES_USER=incident_user
+      - POSTGRES_PASSWORD=incident_user
+      - POSTGRES_DB=incident_management
+    ports:
+      - 5432:5432
+    container_name: ims.db
+    volumes:
+    - ims-db-data:/var/lib/postgresql
+
+  seq:
+    image: datalust/seq:latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_PASSWORD=admin
+    ports:
+      - 5341:80
+    container_name: ims.seq
+    volumes:
+      - ims-seq-data:/data
+
+  jaeger:
+    image: jaegertracing/jaeger:2.17.0
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - 16686:16686
+      - 4317:4317
+      - 4318:4318
+    container_name: ims.jaeger
+
+  redis:
+    image: redis:8
+    ports:
+      - 6379:6379
+    container_name: ims.redis
+    command: redis-server
+
+volumes:
+  ims-keycloak-data:
+    name: ims-keycloak-data
+  ims-db-data:
+    name: ims-db-data
+  ims-seq-data:
+    name: ims-seq-data
