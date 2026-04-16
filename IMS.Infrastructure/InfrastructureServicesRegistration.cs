@@ -1,20 +1,21 @@
 ﻿using IMS.Application.Interfaces.Infrastructure;
 using IMS.Infrastructure.Services.Cache;
 using IMS.Infrastructure.Services.MessageBroker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IMS.Infrastructure;
 
 public static class InfrastructureServicesRegistration
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddMemoryCache();
         var redisConfig = new StackExchange.Redis.ConfigurationOptions
         {
-            EndPoints = { "redis-10964.c56.east-us.azure.cloud.redislabs.com:10964" },
-            User = "default",
-            Password = "LS2oGZjS7RAopazHAhtPU3FMB3yfIPKg",
+            EndPoints = { configuration["Redis:Endpoint"]! },
+            User = configuration["Redis:User"]!,
+            Password = configuration["Redis:Password"]!,
             AbortOnConnectFail = false
         };
 

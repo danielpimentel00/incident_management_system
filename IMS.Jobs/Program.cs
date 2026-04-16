@@ -42,7 +42,7 @@ builder.Services.AddOpenTelemetry()
         metrics.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.Jobs"));
         metrics.AddHttpClientInstrumentation();
         metrics.AddRuntimeInstrumentation();
-        metrics.AddPrometheusHttpListener(options => options.UriPrefixes = new[] { "http://localhost:9464/" });
+        metrics.AddPrometheusHttpListener(options => options.UriPrefixes = new[] { builder.Configuration["Prometheus:HttpListener"]! });
     });
 
 builder.Services.AddHostedService<IncidentEscalationService>();
@@ -61,7 +61,7 @@ builder.Services.AddHttpClient("ApiHealthCheck", client =>
 
 builder.Services.AddHttpClient<INotificationService, HttpBinNotificationService>(options =>
 {
-    options.BaseAddress = new Uri("https://httpbin.org/");
+    options.BaseAddress = new Uri(builder.Configuration["HttpBin:Url"]!);
 })
         .AddStandardResilienceHandler(options =>
         {

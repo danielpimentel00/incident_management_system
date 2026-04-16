@@ -53,7 +53,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistanceServices(builder.Configuration);
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<KeyNotFoundExceptionHandler>();
