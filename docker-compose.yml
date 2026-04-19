@@ -30,6 +30,31 @@ services:
       - jaeger
       - redis
       - rabbitmq  
+ 
+  grpc:
+    build:
+      context: .
+      dockerfile: IMS.GrpcService/Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Debug
+        - APP_PORT=5224
+    image: ims.grpc:dev
+    ports:
+      - 5224:5224
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresDB=Host=db;Port=5432;Database=incident_management;Username=incident_user;Password=incident_user
+      - Seq__ServerUrl=http://seq:5341
+      - Jaeger__Endpoint=http://jaeger:4317
+      - Redis__Endpoint=redis:6379
+      - Redis__User=default
+      - Redis__Password=LS2oGZjS7RAopazHAhtPU3FMB3yfIPKg    
+    container_name: ims.grpc.dev
+    depends_on:
+      - db
+      - seq
+      - jaeger
+      - redis
   
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.2
@@ -88,6 +113,8 @@ services:
     ports:
       - "5672:5672"     
       - "15672:15672"
+    volumes:
+      - ims-rabbitmq-data:/var/lib/rabbitmq
 
 volumes:
   ims-keycloak-data:
@@ -96,3 +123,5 @@ volumes:
     name: ims-db-data
   ims-seq-data:
     name: ims-seq-data
+  ims-rabbitmq-data:
+    name: ims-rabbitmq-data

@@ -47,7 +47,7 @@ builder.Services.AddGrpc();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistanceServices(builder.Configuration);
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
