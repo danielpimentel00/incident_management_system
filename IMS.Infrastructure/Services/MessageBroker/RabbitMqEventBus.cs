@@ -16,7 +16,7 @@ public class RabbitMqEventBus : IEventBus
         _channel = channel;
     }
 
-    public static async Task<RabbitMqEventBus> CreateAsync(string hostName = "localhost")
+    public static async Task<RabbitMqEventBus> CreateAsync(string hostName)
     {
         var factory = new ConnectionFactory()
         {

@@ -30,7 +30,8 @@ public static class InfrastructureServicesRegistration
 
         services.AddSingleton<IEventBus>(sp =>
         {
-            return RabbitMqEventBus.CreateAsync().GetAwaiter().GetResult();
+            var hostName = configuration["RabbitMQ:Host"]!;
+            return RabbitMqEventBus.CreateAsync(hostName).GetAwaiter().GetResult();
         });
 
         return services;

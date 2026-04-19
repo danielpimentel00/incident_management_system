@@ -20,6 +20,8 @@ services:
       - Jaeger__Endpoint=http://jaeger:4317
       - Redis__Endpoint=redis:6379
       - Redis__User=default
+      - Redis__Password=LS2oGZjS7RAopazHAhtPU3FMB3yfIPKg
+      - RabbitMQ__Host=rabbitmq
     container_name: ims.api.dev
     depends_on:
       - keycloak
@@ -27,6 +29,7 @@ services:
       - seq
       - jaeger
       - redis
+      - rabbitmq  
   
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.2
@@ -78,6 +81,13 @@ services:
       - 6379:6379
     container_name: ims.redis
     command: redis-server
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: ims.rabbitmq
+    ports:
+      - "5672:5672"     
+      - "15672:15672"
 
 volumes:
   ims-keycloak-data:
