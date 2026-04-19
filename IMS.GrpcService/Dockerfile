@@ -22,15 +22,17 @@ RUN dotnet publish IMS.GrpcService/IMS.GrpcService.csproj \
 #Stage 2
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
-ARG APP_PORT=8081
+ARG HTTP_PORT=8081
+ARG HTTPS_PORT=8082
 
 WORKDIR /app
 
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:${APP_PORT}
+ENV ASPNETCORE_URLS=http://+:${HTTP_PORT};https://+:${HTTPS_PORT}
 
-EXPOSE ${APP_PORT}
+EXPOSE ${HTTP_PORT}
+EXPOSE ${HTTPS_PORT}
 
 ENTRYPOINT ["dotnet", "IMS.GrpcService.dll"]

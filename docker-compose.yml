@@ -37,10 +37,12 @@ services:
       dockerfile: IMS.GrpcService/Dockerfile
       args:
         - BUILD_CONFIGURATION=Debug
-        - APP_PORT=5224
+        - HTTP_PORT=5224
+        - HTTPS_PORT=7286
     image: ims.grpc:dev
     ports:
       - 5224:5224
+      - 7286:7286
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__PostgresDB=Host=db;Port=5432;Database=incident_management;Username=incident_user;Password=incident_user
@@ -55,7 +57,39 @@ services:
       - seq
       - jaeger
       - redis
-  
+
+  jobs:
+    build:
+      context: .
+      dockerfile: IMS.Jobs/Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Debug
+    image: ims.jobs:dev
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - HealthCheck__ApiUrl=http://api:5142
+      - HealthCheck__IntervalSeconds=30
+      - Seq__ServerUrl=http://seq:5341
+      - Jaeger__Endpoint=http://jaeger:4317
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Exchange=incident-exchange
+      - HttpBin__Url=https://httpbin.org/
+      - Prometheus__HttpListener=http://localhost:9464/
+      - GrpcService__Host=http://grpc
+      - GrpcService__Port=5224
+    container_name: ims.jobs.dev
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      api:
+        condition: service_started
+      grpc:
+        condition: service_started
+      seq:
+        condition: service_started
+      jaeger:
+        condition: service_started
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.2
     command: start-dev
@@ -115,6 +149,11 @@ services:
       - "15672:15672"
     volumes:
       - ims-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   ims-keycloak-data:

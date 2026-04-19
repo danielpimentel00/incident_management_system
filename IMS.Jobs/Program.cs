@@ -51,8 +51,11 @@ builder.Services.AddHostedService<IncidentEscalationConsumer>();
 
 builder.Services.AddGrpcClient<IncidentService.IncidentServiceClient>(options =>
 {
-    options.Address = new Uri("https://localhost:7286");
+    var host = builder.Configuration["GrpcService:Host"]!;
+    var port = builder.Configuration["GrpcService:Port"]!;
+    options.Address = new Uri($"{host}:{port}");
 });
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
 builder.Services.AddHttpClient("ApiHealthCheck", client =>
 {

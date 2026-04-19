@@ -10,20 +10,21 @@ namespace IMS.Jobs.Services;
 public class IncidentEscalationConsumer : BackgroundService
 {
     private readonly INotificationService _notificationService;
+    private readonly IConfiguration _configuration;
 
-    public IncidentEscalationConsumer(INotificationService notificationService)
+    public IncidentEscalationConsumer(INotificationService notificationService, IConfiguration configuration)
     {
         _notificationService = notificationService;
+        _configuration = configuration;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var factory = new ConnectionFactory() { HostName = "localhost" };
+        var factory = new ConnectionFactory() { HostName = _configuration["RabbitMQ:Host"]! };
         var connection = await factory.CreateConnectionAsync();
         var channel = await connection.CreateChannelAsync();
 
-        string exchange = "incident-exchange";
-
+        string exchange = _configuration["RabbitMQ:Exchange"]!;
         await channel.ExchangeDeclareAsync(exchange, ExchangeType.Fanout);
 
         var queueName = (await channel.QueueDeclareAsync()).QueueName;
