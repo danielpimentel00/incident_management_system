@@ -1,34 +1,65 @@
-using FluentValidation;
-using incident_management_system.API.Behaviors;
+using IMS.Application;
+using IMS.Infrastructure;
+using IMS.Persistance;
 using incident_management_system.API.ExceptionHandlers;
 using incident_management_system.API.Extensions;
-using incident_management_system.API.Features.Incidents.CreateIncident;
 using incident_management_system.API.Health;
-using incident_management_system.API.Infrastructure;
 using incident_management_system.API.Middlewares;
-using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using System.Net;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Enrichers.Span;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<IncidentDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDB"));
-});
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.API"));
+        tracing.AddAspNetCoreInstrumentation();
+        tracing.AddHttpClientInstrumentation();
+        tracing.AddOtlpExporter(options =>
+        {
+            options.Endpoint = new Uri(builder.Configuration["Jaeger:Endpoint"]!);
+        });
+
+        if (builder.Environment.IsDevelopment())
+        {
+            tracing.AddConsoleExporter();
+        }
+    })
+    .WithMetrics(metrics =>
+    {
+        metrics.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IMS.API"));
+        metrics.AddAspNetCoreInstrumentation();
+        metrics.AddHttpClientInstrumentation();
+        metrics.AddRuntimeInstrumentation();
+        metrics.AddPrometheusExporter();
+    });
+
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .Enrich.FromLogContext()
+    .Enrich.WithSpan()
+    .Enrich.WithProperty("Application", "IMS.API")
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.Seq(builder.Configuration["Seq:ServerUrl"]!)
+);
+
+builder.Services.AddApplicationServices();
+builder.Services.AddPersistanceServices(builder.Configuration);
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddExceptionHandler<KeyNotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<InvalidOperationExceptionHandler>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateIncidentCommandValidator>();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
-
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviors<,>));
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -56,5 +87,7 @@ app.UseMiddleware<LoggingMiddleware>();
 app.MapEndpoints();
 
 app.MapHealthEndpoints();
+
+app.MapPrometheusScrapingEndpoint();
 
 app.Run();

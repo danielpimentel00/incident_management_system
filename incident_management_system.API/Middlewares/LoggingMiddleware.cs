@@ -3,21 +3,24 @@
 public class LoggingMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<LoggingMiddleware> _logger;
 
-    public LoggingMiddleware(RequestDelegate next)
+    public LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
         var requestTime = DateTime.UtcNow;
         
-        Console.WriteLine($"Incoming Request: {context.Request.Method} {context.Request.Path}");
+        _logger.LogInformation("Incoming Request: {method} {path}", context.Request.Method, context.Request.Path);
         await _next(context);
-        Console.WriteLine($"Outgoing Response: {context.Response.StatusCode}");
+        _logger.LogInformation("Outgoing Response: {statusCode}", context.Response.StatusCode);
         
         var responseTime = DateTime.UtcNow;
-        Console.WriteLine($"Request Time: {responseTime - requestTime}");
+        var totalTime = responseTime - requestTime;
+        _logger.LogInformation("Request Time: {requestTime}", totalTime);
     }
 }

@@ -1,0 +1,166 @@
+version: '1.0'
+
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: incident_management_system.API/Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Debug
+        - APP_PORT=5142
+    image: ims.api:dev
+    ports:
+      - 5142:5142
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JWT__Authority=http://keycloak:8080/realms/Incident_management_system_realm
+      - JWT__Audience=incident_management_api
+      - ConnectionStrings__PostgresDB=Host=db;Port=5432;Database=incident_management;Username=incident_user;Password=incident_user
+      - Seq__ServerUrl=http://seq:5341
+      - Jaeger__Endpoint=http://jaeger:4317
+      - Redis__Endpoint=redis:6379
+      - Redis__User=default
+      - Redis__Password=LS2oGZjS7RAopazHAhtPU3FMB3yfIPKg
+      - RabbitMQ__Host=rabbitmq
+    container_name: ims.api.dev
+    depends_on:
+      - keycloak
+      - db
+      - seq
+      - jaeger
+      - redis
+      - rabbitmq  
+ 
+  grpc:
+    build:
+      context: .
+      dockerfile: IMS.GrpcService/Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Debug
+        - HTTP_PORT=5224
+        - HTTPS_PORT=7286
+    image: ims.grpc:dev
+    ports:
+      - 5224:5224
+      - 7286:7286
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresDB=Host=db;Port=5432;Database=incident_management;Username=incident_user;Password=incident_user
+      - Seq__ServerUrl=http://seq:5341
+      - Jaeger__Endpoint=http://jaeger:4317
+      - Redis__Endpoint=redis:6379
+      - Redis__User=default
+      - Redis__Password=LS2oGZjS7RAopazHAhtPU3FMB3yfIPKg    
+    container_name: ims.grpc.dev
+    depends_on:
+      - db
+      - seq
+      - jaeger
+      - redis
+
+  jobs:
+    build:
+      context: .
+      dockerfile: IMS.Jobs/Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Debug
+    image: ims.jobs:dev
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - HealthCheck__ApiUrl=http://api:5142
+      - HealthCheck__IntervalSeconds=30
+      - Seq__ServerUrl=http://seq:5341
+      - Jaeger__Endpoint=http://jaeger:4317
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Exchange=incident-exchange
+      - HttpBin__Url=https://httpbin.org/
+      - Prometheus__HttpListener=http://localhost:9464/
+      - GrpcService__Host=http://grpc
+      - GrpcService__Port=5224
+    container_name: ims.jobs.dev
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      api:
+        condition: service_started
+      grpc:
+        condition: service_started
+      seq:
+        condition: service_started
+      jaeger:
+        condition: service_started
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.2
+    command: start-dev
+    ports: 
+      - 8080:8080
+    environment:
+      - KC_HOSTNAME=keycloak
+    container_name: ims.keycloak
+    volumes:
+      - ims-keycloak-data:/opt/keycloak/data
+ 
+  db:
+    image: postgres:18
+    environment:
+      - POSTGRES_USER=incident_user
+      - POSTGRES_PASSWORD=incident_user
+      - POSTGRES_DB=incident_management
+    ports:
+      - 5432:5432
+    container_name: ims.db
+    volumes:
+    - ims-db-data:/var/lib/postgresql
+
+  seq:
+    image: datalust/seq:latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_PASSWORD=admin
+    ports:
+      - 5341:80
+    container_name: ims.seq
+    volumes:
+      - ims-seq-data:/data
+
+  jaeger:
+    image: jaegertracing/jaeger:2.17.0
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - 16686:16686
+      - 4317:4317
+      - 4318:4318
+    container_name: ims.jaeger
+
+  redis:
+    image: redis:8
+    ports:
+      - 6379:6379
+    container_name: ims.redis
+    command: redis-server
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: ims.rabbitmq
+    ports:
+      - "5672:5672"     
+      - "15672:15672"
+    volumes:
+      - ims-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ims-keycloak-data:
+    name: ims-keycloak-data
+  ims-db-data:
+    name: ims-db-data
+  ims-seq-data:
+    name: ims-seq-data
+  ims-rabbitmq-data:
+    name: ims-rabbitmq-data

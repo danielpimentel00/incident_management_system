@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option csharp_namespace = "IMS.GrpcService.Protos";
+
+package incidents;
+
+service IncidentService {
+	rpc GetOpenIncidents (EmptyRequest) returns (OpenIncidentsResponse);
+	rpc EscalateIncident (EscalateIncidentRequest) returns (EscalateIncidentResponse);
+}
+
+message EmptyRequest {
+}
+
+message OpenIncidentsResponse {
+	repeated Incident incidents = 1;
+}
+
+message Incident {
+	int32 id = 1;
+	string title = 2;
+	int64 openedAtUnix = 3;
+}
+
+message EscalateIncidentRequest {
+	int32 incidentId = 1;
+}
+
+message EscalateIncidentResponse {
+	bool success = 1;
+}
